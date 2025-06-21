@@ -1,7 +1,13 @@
 <template>
   <!-- 底部功能卡片 -->
   <div class="mylessons-section">
-    <h2>我的实训</h2>
+    <h2>
+      我的实训
+      <el-button type="primary" size="small" @click="refreshLessons" style="margin-left: 12px">
+        刷新
+      </el-button>
+    </h2>
+
     <el-row :gutter="20">
       <template v-if="loading">
         <el-col :span="6" v-for="i in 4" :key="i">
@@ -38,14 +44,45 @@ const mylessons = ref([])
 const loading = ref(true)
 const colors = ['card-pink', 'card-green', 'card-blue', 'card-yellow', 'card-purple', 'card-orange']
 
-onMounted(async () => {
+const refreshLessons = async () => {
+  loading.value = true
   try {
     const res = await getMyLessonsService()
+    mylessons.value = res.map(item => ({
+      id: item.id,
+      title: item.title,
+      description: item.description,
+    }))
+    localStorage.setItem('mylessons', JSON.stringify(mylessons.value))
+  } catch (e) {
+    console.error('刷新数据失败', e)
+  } finally {
+    loading.value = false
+  }
+}
+
+
+onMounted(async () => {
+  const cache = localStorage.getItem('mylessons')
+  if (cache) {
+    try {
+      mylessons.value = JSON.parse(cache)
+      loading.value = false
+      return
+    } catch (err) {
+      console.warn('缓存 JSON 解析失败，已清空本地缓存', err)
+      localStorage.removeItem('mylessons')
+    }
+  }
+  try {
+    const res = await getMyLessonsService()
+    console.log(res)
     mylessons.value = res.map((item) => ({
       id: item.id,
       title: item.title,
       description: item.description,
     }))
+    localStorage.setItem('mylessons', JSON.stringify(mylessons.value))
   } catch (error) {
     console.error('获取实训数据失败:', error)
   } finally {

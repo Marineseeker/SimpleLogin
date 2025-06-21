@@ -74,7 +74,6 @@ const turnToFrontPage = () => {
 const turnToTrainCenter = () => {
   router.push('/traincenter')
 }
-
 </script>
 
 <style scoped>
