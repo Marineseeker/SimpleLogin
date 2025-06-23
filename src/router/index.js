@@ -6,6 +6,7 @@ import mainlayout from '@/views/Layout/MainLayout.vue'
 import userhome from '@/views/Layout/UserHome.vue'
 import frontpage from '@/views/Layout/FrontPage.vue'
 import traincenter from '@/views/Layout/TrainCenter.vue'
+import lessondetail from '@/views/Layout/LessonDetail.vue'
 
 const routes = [
   { path: '/', redirect: '/login' },
@@ -17,8 +18,9 @@ const routes = [
     children: [
       { path: '', redirect: 'frontpage' },
       { path: '/frontpage', component: frontpage },
-      { path: '/traincenter', component: traincenter },
       { path: '/userhome', component: userhome },
+      { path: '/traincenter',component: traincenter, children: []},
+      { path: '/lesson/:id', component: lessondetail },
     ],
   },
 ]

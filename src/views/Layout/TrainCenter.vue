@@ -26,7 +26,11 @@
 
       <template v-else>
         <el-col :span="6" v-for="(card, index) in mylessons" :key="card.id">
-          <div class="card" :class="colors[index % colors.length]">
+          <div
+            class="card"
+            :class="colors[index % colors.length]"
+            @click="goToLessonDetail(card.id)"
+          >
             <div class="card-title">{{ card.title }}</div>
             <div class="card-description">{{ card.description }}</div>
           </div>
@@ -39,16 +43,18 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { getMyLessonsService } from '@/apis/lessons'
+import { useRouter } from 'vue-router'
 
 const mylessons = ref([])
 const loading = ref(true)
 const colors = ['card-pink', 'card-green', 'card-blue', 'card-yellow', 'card-purple', 'card-orange']
+const router = useRouter()
 
 const refreshLessons = async () => {
   loading.value = true
   try {
     const res = await getMyLessonsService()
-    mylessons.value = res.map(item => ({
+    mylessons.value = res.map((item) => ({
       id: item.id,
       title: item.title,
       description: item.description,
@@ -61,6 +67,9 @@ const refreshLessons = async () => {
   }
 }
 
+const goToLessonDetail = (id) => {
+  router.push(`traincenter/lesson/${id}`)
+}
 
 onMounted(async () => {
   const cache = localStorage.getItem('mylessons')
@@ -74,20 +83,7 @@ onMounted(async () => {
       localStorage.removeItem('mylessons')
     }
   }
-  try {
-    const res = await getMyLessonsService()
-    console.log(res)
-    mylessons.value = res.map((item) => ({
-      id: item.id,
-      title: item.title,
-      description: item.description,
-    }))
-    localStorage.setItem('mylessons', JSON.stringify(mylessons.value))
-  } catch (error) {
-    console.error('获取实训数据失败:', error)
-  } finally {
-    loading.value = false
-  }
+  refreshLessons()
 })
 </script>
 
