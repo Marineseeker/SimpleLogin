@@ -19,8 +19,8 @@ const routes = [
       { path: '', redirect: 'frontpage' },
       { path: '/frontpage', component: frontpage },
       { path: '/userhome', component: userhome },
-      { path: '/traincenter',component: traincenter, children: []},
-      { path: '/lesson/:id', component: lessondetail },
+      { path: '/traincenter', component: traincenter },
+      { path: '/traincenter/lesson/:id', component: lessondetail },
     ],
   },
 ]
