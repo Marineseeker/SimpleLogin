@@ -121,6 +121,7 @@
 
 <script setup>
 import { reactive } from 'vue'
+
 const sections = reactive([
   { id: 1, title: '第1章 自然语言处理分类', duration: 180 },
   { id: 2, title: '第2章 文本预处理技术', duration: 180 },
@@ -128,6 +129,7 @@ const sections = reactive([
   { id: 4, title: '第4章 高级NLP技术', duration: 180 },
   { id: 5, title: '第5章 实战项目开发', duration: 240 },
 ])
+
 </script>
 
 <style scoped>

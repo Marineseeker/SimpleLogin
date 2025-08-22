@@ -13,14 +13,14 @@ const routes = [
   { path: '/login', component: loginpage },
   { path: '/register', component: registerpage },
   {
-    path: '/mainlayout',
+    path: '/main-layout',
     component: mainlayout,
     children: [
       { path: '', redirect: 'frontpage' },
-      { path: '/frontpage', component: frontpage },
-      { path: '/userhome', component: userhome },
-      { path: '/traincenter', component: traincenter },
-      { path: '/traincenter/lesson/:id', component: lessondetail },
+      { path: '/front-page', component: frontpage },
+      { path: '/user-home', component: userhome },
+      { path: '/train-center', component: traincenter },
+      { path: '/train-center/lesson/:id', component: lessondetail },
     ],
   },
 ]

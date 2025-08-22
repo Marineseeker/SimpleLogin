@@ -70,7 +70,7 @@
   </el-row>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { userLoginServive } from '@/apis/user'
 import { useRoute } from 'vue-router'
@@ -89,15 +89,17 @@ const loginData = ref({
   password: '',
 })
 
-const login = async () => {
-  console.log(loginData.value.data)
-  const res = await userLoginServive(loginData.value)
-  // 保存token
-  localStorage.setItem('token', res.token)
-  // 持久化 user 到 pinia
-  userStore.setUser(res.user)
-  ElMessage.success('欢迎 ' + res.user.username)
-  router.push('/mainlayout')
+const form = ref(null)
+
+const login = async() => {
+  form.value.validate(async(valid) => {
+    if (!valid) return
+    const res = await userLoginServive(loginData.value)
+    localStorage.setItem('token', res.token)
+    userStore.setUser(res.user)
+    ElMessage.success('欢迎 ' + res.user.username)
+    await router.push('/main-layout')
+  })
 }
 
 const rules = {

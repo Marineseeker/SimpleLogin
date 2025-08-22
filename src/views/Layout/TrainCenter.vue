@@ -83,7 +83,7 @@ onMounted(async () => {
       localStorage.removeItem('mylessons')
     }
   }
-  refreshLessons()
+  await refreshLessons()
 })
 </script>
 
