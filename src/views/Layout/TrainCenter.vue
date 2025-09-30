@@ -68,7 +68,7 @@ const refreshLessons = async () => {
 }
 
 const goToLessonDetail = (id) => {
-  router.push(`traincenter/lesson/${id}`)
+  router.push(`train-center/lesson/${id}`)
 }
 
 onMounted(async () => {

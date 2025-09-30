@@ -9,7 +9,7 @@
           </el-form-item>
 
           <el-form-item prop="email">
-            <el-input class="input" type="email" v-model="loginData.email">
+            <el-input class="input" type="text" v-model="loginData.email">
               <template #prefix>
                 <i class="fas fa-envelope"></i>
               </template>
@@ -56,7 +56,7 @@
 
             <el-row>
               <router-link
-                to="/Thirdpartylogin"
+                to="/ThirdPartyLogin"
                 class="register-link"
                 style="text-decoration: none"
               >
@@ -76,7 +76,7 @@ import { userLoginServive } from '@/apis/user'
 import { useRoute } from 'vue-router'
 import router from '@/router'
 import { useUserStore } from '@/stores/user'
-import { ElMessage } from 'element-plus'
+import { ElMessage, FormInstance, FormRules } from 'element-plus'
 
 const route = useRoute()
 
@@ -89,20 +89,44 @@ const loginData = ref({
   password: '',
 })
 
-const form = ref(null)
+// 定义接口类型 - 这是后端返回的 data 部分
+type LoginResponse = {
+  token: string
+  user: {
+    username: string
+    email: string
+  }
+}
 
-const login = async() => {
-  form.value.validate(async(valid) => {
+const form = ref<FormInstance>()
+
+const login = () => {
+  if (!form.value) return
+  form.value.validate((valid) => {
     if (!valid) return
-    const res = await userLoginServive(loginData.value)
-    localStorage.setItem('token', res.token)
-    userStore.setUser(res.user)
-    ElMessage.success('欢迎 ' + res.user.username)
-    await router.push('/main-layout')
+    userLoginServive(loginData.value)
+      .then((response) => {
+        // 由于响应拦截器已经处理了 response.data，直接使用 response
+        const res = response as unknown as LoginResponse
+
+        // 添加安全检查
+        if (!res || !res.token) {
+          ElMessage.error('登录失败: 服务器返回数据格式错误')
+          return
+        }
+
+        localStorage.setItem('token', res.token)
+        userStore.setUser(res.user)
+        ElMessage.success('欢迎 ' + res.user.username)
+        router.push('/main-layout')
+      })
+      .catch((error) => {
+        ElMessage.error('登录失败: ' + (error.message || '未知错误'))
+      })
   })
 }
 
-const rules = {
+const rules: FormRules = {
   email: [
     { required: true, message: '请输入邮箱', trigger: 'blur' },
     { type: 'email', message: '请输入正确的邮箱', trigger: ['blur', 'change'] },
@@ -113,10 +137,10 @@ const rules = {
   ],
 }
 
-onMounted(async() => {
-  if (route.query.email) {
-    loginData.value.email = route.query.email
-    loginData.value.password = route.query.password
+onMounted(() => {
+  if (route.query.email && route.query.password) {
+    loginData.value.email = route.query.email as string
+    loginData.value.password = route.query.password as string
   }
 })
 </script>

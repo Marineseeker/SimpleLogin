@@ -16,7 +16,7 @@ const routes = [
     path: '/main-layout',
     component: mainlayout,
     children: [
-      { path: '', redirect: 'frontpage' },
+      { path: '', redirect: '/front-page' },
       { path: '/front-page', component: frontpage },
       { path: '/user-home', component: userhome },
       { path: '/train-center', component: traincenter },

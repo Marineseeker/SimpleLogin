@@ -1,135 +1,191 @@
 <template>
   <div class="lesson-detail-container">
-    <!-- 课程头部信息 -->
-    <div class="lesson-header">
-      <div class="lesson-hero">
-        <div
-          class="lesson-image"
-          :style="{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }"
-        >
-          <div class="lesson-overlay">
-            <h1 class="lesson-title">自然语言处理</h1>
-            <div class="lesson-badge">热门课程</div>
-          </div>
-        </div>
-        <div class="lesson-meta">
-          <div class="meta-grid">
-            <div class="meta-item">
-              <i class="el-icon-star-on"></i>
-              <span class="meta-label">难度等级</span>
-              <span class="meta-value">★★★★☆</span>
-            </div>
-            <div class="meta-item">
-              <i class="el-icon-time"></i>
-              <span class="meta-label">课程时长</span>
-              <span class="meta-value">5小时</span>
-            </div>
-            <div class="meta-item">
-              <i class="el-icon-money"></i>
-              <span class="meta-label">课程费用</span>
-              <span class="meta-value free">免费</span>
-            </div>
-            <div class="meta-item">
-              <i class="el-icon-user"></i>
-              <span class="meta-label">学习人数</span>
-              <span class="meta-value">1,234人</span>
+    <!-- 加载状态 -->
+    <div v-if="loading" class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>正在加载课程详情...</p>
+    </div>
+
+    <!-- 课程内容 -->
+    <div v-else>
+      <!-- 课程头部信息 -->
+      <div class="lesson-header">
+        <div class="lesson-hero">
+          <div
+            class="lesson-image"
+            :style="{
+              background: lessonData.imageCover
+                ? `url(${lessonData.imageCover}) center/cover`
+                : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            }"
+          >
+            <div class="lesson-overlay">
+              <h1 class="lesson-title">{{ lessonData.title }}</h1>
+              <div class="lesson-badge">热门课程</div>
             </div>
           </div>
-          <div class="action-buttons">
-            <button class="btn-primary">立即报名</button>
-            <button class="btn-secondary">收藏课程</button>
+          <div class="lesson-meta">
+            <div class="meta-grid">
+              <div class="meta-item">
+                <i class="el-icon-star-on"></i>
+                <span class="meta-label">难度等级</span>
+                <span class="meta-value">{{
+                  '★'.repeat(lessonData.difficulty || 0) +
+                  '☆'.repeat(5 - (lessonData.difficulty || 0))
+                }}</span>
+              </div>
+              <div class="meta-item">
+                <i class="el-icon-time"></i>
+                <span class="meta-label">课程时长</span>
+                <span class="meta-value">{{ lessonData.durationWeeks }}周</span>
+              </div>
+              <div class="meta-item">
+                <i class="el-icon-money"></i>
+                <span class="meta-label">课程费用</span>
+                <span class="meta-value free">{{ lessonData.free ? '免费' : '付费' }}</span>
+              </div>
+              <div class="meta-item">
+                <i class="el-icon-user"></i>
+                <span class="meta-label">学习人数</span>
+                <span class="meta-value">{{ lessonData.enrolledCount }}人</span>
+              </div>
+            </div>
+            <div class="action-buttons">
+              <button class="btn-primary">立即报名</button>
+              <button class="btn-secondary">收藏课程</button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- 课程内容区域 -->
-    <div class="lesson-content">
-      <div class="content-grid">
-        <!-- 课程章节列表 -->
-        <div class="chapters-section">
-          <div class="section-header">
-            <h2>课程章节</h2>
-            <span class="chapter-count">{{ sections.length }} 个章节</span>
-          </div>
-          <div class="chapters-list">
-            <div
-              v-for="(section, index) in sections"
-              :key="section.id"
-              class="chapter-item"
-              :class="{ 'chapter-active': index === 0 }"
-            >
-              <div class="chapter-info">
-                <div class="chapter-number">{{ index + 1 }}</div>
-                <div class="chapter-details">
-                  <h3 class="chapter-title">{{ section.title }}</h3>
-                  <div class="chapter-meta">
-                    <span class="duration">{{ section.duration }}分钟</span>
-                    <span class="status" :class="index === 0 ? 'status-active' : 'status-locked'">
-                      {{ index === 0 ? '可学习' : '待解锁' }}
-                    </span>
+      <!-- 课程内容区域 -->
+      <div class="lesson-content">
+        <div class="content-grid">
+          <!-- 课程章节列表 -->
+          <div class="chapters-section">
+            <div class="section-header">
+              <h2>课程章节</h2>
+              <span class="chapter-count">{{ lessonData.chapter?.length || 0 }} 个章节</span>
+            </div>
+            <div class="chapters-list">
+              <div
+                v-for="(section, index) in lessonData.chapter || []"
+                :key="section.title"
+                class="chapter-item"
+                :class="{ 'chapter-active': section.status === 'available' }"
+              >
+                <div class="chapter-info">
+                  <div class="chapter-number">{{ index + 1 }}</div>
+                  <div class="chapter-details">
+                    <h3 class="chapter-title">{{ section.title }}</h3>
+                    <div class="chapter-meta">
+                      <span class="duration">{{ section.duration }}分钟</span>
+                      <span
+                        class="status"
+                        :class="section.status === 'available' ? 'status-active' : 'status-locked'"
+                      >
+                        {{ section.status === 'available' ? '可学习' : '待解锁' }}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div class="chapter-action">
-                <i class="el-icon-arrow-right"></i>
+                <div class="chapter-action">
+                  <i class="el-icon-arrow-right"></i>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- 课程信息侧边栏 -->
-        <div class="sidebar">
-          <!-- 课程简介 -->
-          <div class="info-card">
-            <h3>课程简介</h3>
-            <p class="course-description">
-              自然语言处理是人工智能领域的重要分支，涵盖文本处理、机器翻译、情感分析等内容。
-              本课程将带你深入了解NLP的核心技术，从基础概念到实际应用，全面提升你的AI技能。
-            </p>
-          </div>
+          <!-- 课程信息侧边栏 -->
+          <div class="sidebar">
+            <!-- 课程简介 -->
+            <div class="info-card">
+              <h3>课程简介</h3>
+              <p class="course-description">
+                {{
+                  lessonData.description
+                }}
+              </p>
+            </div>
 
-          <!-- 学习目标 -->
-          <div class="info-card">
-            <h3>学习目标</h3>
-            <ul class="learning-objectives">
-              <li>掌握NLP基础理论和核心算法</li>
-              <li>学会文本预处理和特征提取</li>
-              <li>理解机器翻译的工作原理</li>
-              <li>能够独立完成NLP项目开发</li>
-            </ul>
-          </div>
-
-          <!-- 讲师信息 -->
-          <div class="info-card">
-            <h3>讲师介绍</h3>
-            <div class="instructor">
-              <div class="instructor-avatar">
-                <img src="https://via.placeholder.com/60x60/667eea/ffffff?text=AI" alt="讲师头像" />
-              </div>
-              <div class="instructor-info">
-                <h4>张教授</h4>
-                <p>人工智能专家，拥有10年NLP研究经验</p>
-              </div>
+            <!-- 学习目标 -->
+            <div class="info-card">
+              <h3>学习目标</h3>
+              <ul class="learning-objectives">
+                <li
+                  v-for="(objective, index) in lessonData.objectives"
+                  :key="index"
+                >
+                  {{ objective }}
+                </li>
+              </ul>
             </div>
           </div>
         </div>
       </div>
     </div>
+    <!-- 课程内容结束 -->
   </div>
 </template>
 
-<script setup>
-import { reactive } from 'vue'
+<script setup lang="ts">
+import { onMounted, reactive, ref } from 'vue'
+import { useRoute } from 'vue-router'
+import { getLessonDetailService } from '@/apis/lessons.js'
 
-const sections = reactive([
-  { id: 1, title: '第1章 自然语言处理分类', duration: 180 },
-  { id: 2, title: '第2章 文本预处理技术', duration: 180 },
-  { id: 3, title: '第3章 机器翻译基础', duration: 180 },
-  { id: 4, title: '第4章 高级NLP技术', duration: 180 },
-  { id: 5, title: '第5章 实战项目开发', duration: 240 },
-])
+// 获取路由实例
+const route = useRoute()
 
+// 获取课程ID
+const lessonId = ref(route.params.id)
+
+// 定义课程数据类型
+interface ChapterItem {
+  title: string
+  status: 'available' | 'locked'
+  duration: number
+}
+
+interface LessonData {
+  id?: number
+  title?: string
+  description?: string
+  createdBy?: number
+  createdAt?: string
+  difficulty?: number
+  durationWeeks?: number
+  free?: boolean
+  enrolledCount?: number
+  chapter?: ChapterItem[]
+  objectives?: string[]
+  imageCover?: string
+}
+
+// 课程数据
+const loading = ref(false)
+let lessonData: LessonData = {}
+
+// 根据ID获取课程详情的函数
+const fetchLessonDetail = async (id) => {
+  try {
+    loading.value = true
+    const response = await getLessonDetailService(id)
+    // 由于axios拦截器已经返回了data，直接使用即可
+    lessonData = (response as LessonData) || {}
+    console.log('lessonData: ', lessonData)
+  } catch (error) {
+    console.error('获取课程详情失败:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  // 组件挂载时获取课程详情
+  if (lessonId.value) {
+    fetchLessonDetail(lessonId.value)
+  }
+})
 </script>
 
 <style scoped>
@@ -137,6 +193,35 @@ const sections = reactive([
   min-height: 100vh;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* 加载状态样式 */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: #667eea;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* 课程头部样式 */
@@ -181,8 +266,7 @@ const sections = reactive([
 }
 
 .lesson-badge {
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.3);
   padding: 8px 16px;
   border-radius: 20px;
   font-size: 14px;
@@ -205,12 +289,6 @@ const sections = reactive([
   padding: 15px;
   background: #f8f9fa;
   border-radius: 12px;
-  transition: all 0.3s ease;
-}
-
-.meta-item:hover {
-  background: #e9ecef;
-  transform: translateY(-2px);
 }
 
 .meta-item i {
@@ -247,7 +325,6 @@ const sections = reactive([
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
   flex: 1;
 }
 
@@ -256,21 +333,10 @@ const sections = reactive([
   color: #fff;
 }
 
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
-}
-
 .btn-secondary {
   background: #fff;
   color: #667eea;
   border: 2px solid #667eea;
-}
-
-.btn-secondary:hover {
-  background: #667eea;
-  color: #fff;
-  transform: translateY(-2px);
 }
 
 /* 课程内容区域 */
@@ -332,14 +398,8 @@ const sections = reactive([
   padding: 20px;
   border-radius: 12px;
   background: #f8f9fa;
-  transition: all 0.3s ease;
   cursor: pointer;
   border: 2px solid transparent;
-}
-
-.chapter-item:hover {
-  background: #e9ecef;
-  transform: translateX(5px);
 }
 
 .chapter-item.chapter-active {
@@ -471,31 +531,6 @@ const sections = reactive([
   left: 0;
   color: #28a745;
   font-weight: bold;
-}
-
-.instructor {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.instructor-avatar img {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.instructor-info h4 {
-  margin: 0 0 5px 0;
-  color: #2c3e50;
-  font-size: 16px;
-}
-
-.instructor-info p {
-  margin: 0;
-  color: #6c757d;
-  font-size: 14px;
 }
 
 /* 响应式设计 */

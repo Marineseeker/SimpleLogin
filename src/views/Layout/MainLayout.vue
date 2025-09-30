@@ -64,15 +64,15 @@ const logout = async () => {
 }
 
 const turnToUserHome = () => {
-  router.push('/userhome')
+  router.push('/user-home')
 }
 
 const turnToFrontPage = () => {
-  router.push('/frontpage')
+  router.push('/front-page')
 }
 
 const turnToTrainCenter = () => {
-  router.push('/traincenter')
+  router.push('/train-center')
 }
 </script>
 
