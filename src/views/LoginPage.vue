@@ -114,7 +114,6 @@ const login = () => {
           ElMessage.error('登录失败: 服务器返回数据格式错误')
           return
         }
-
         localStorage.setItem('token', res.token)
         userStore.setUser(res.user)
         ElMessage.success('欢迎 ' + res.user.username)

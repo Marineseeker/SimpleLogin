@@ -37,6 +37,9 @@
 
     <!-- 添加 router-view 来显示子路由内容 -->
     <router-view></router-view>
+
+    <!-- AI聊天组件 -->
+    <ChatIcon />
   </div>
 </template>
 
@@ -45,6 +48,7 @@ import { useUserStore } from '@/stores/user'
 import router from '@/router'
 import { userLogoutService } from '@/apis/user.js'
 import { ElMessage } from 'element-plus'
+import ChatIcon from '@/components/ChatIcon.vue'
 
 const userStore = useUserStore()
 

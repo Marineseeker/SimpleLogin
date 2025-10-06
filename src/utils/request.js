@@ -3,7 +3,7 @@ import { ElMessage } from 'element-plus'
 
 const instance = axios.create({
   baseURL: '/api', // 代理前缀
-  timeout: 5000,
+  timeout: 10000,
   withCredentials: true, // 允许cookie跨域
 })
 
